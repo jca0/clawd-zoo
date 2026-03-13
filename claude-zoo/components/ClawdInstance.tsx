@@ -1,9 +1,10 @@
 'use client';
 
 import { useState, useRef, useCallback } from 'react';
-import type { Session, ParsedMessage } from '@/lib/types';
+import type { Session, SessionStats, ParsedMessage } from '@/lib/types';
 import ThoughtBubble from '@/components/ThoughtBubble';
 import SpeechBubble from '@/components/SpeechBubble';
+import StatsPopup from '@/components/StatsPopup';
 import ConversationView from '@/components/ConversationView';
 
 interface ClawdInstanceProps {
@@ -22,6 +23,8 @@ function shortenPath(cwd: string): string {
 export default function ClawdInstance({ session, position, onDrag, name, onRename }: ClawdInstanceProps) {
   const [expanded, setExpanded] = useState(false);
   const [conversation, setConversation] = useState<ParsedMessage[] | null>(null);
+  const [showStats, setShowStats] = useState(false);
+  const [stats, setStats] = useState<SessionStats | null>(null);
   const [editing, setEditing] = useState(false);
   const [editValue, setEditValue] = useState('');
   const inputRef = useRef<HTMLInputElement>(null);
@@ -73,6 +76,17 @@ export default function ClawdInstance({ session, position, onDrag, name, onRenam
 
     const handleMouseUp = () => {
       dragging.current = false;
+      if (!didDrag.current) {
+        setShowStats((prev) => {
+          if (!prev) {
+            fetch(`/api/session/${session.id}/stats`)
+              .then((r) => r.ok ? r.json() : null)
+              .then((data) => { if (data) setStats(data); })
+              .catch(() => {});
+          }
+          return !prev;
+        });
+      }
       window.removeEventListener('mousemove', handleMouseMove);
       window.removeEventListener('mouseup', handleMouseUp);
     };
@@ -146,8 +160,11 @@ export default function ClawdInstance({ session, position, onDrag, name, onRenam
           {name || shortenPath(session.cwd)}
         </span>
       )}
+      {showStats && stats && !expanded && (
+        <StatsPopup stats={stats} side="right" />
+      )}
       {expanded && conversation && (
-        <ConversationView messages={conversation} onClose={() => { setExpanded(false); setConversation(null); }} />
+        <ConversationView messages={conversation} />
       )}
     </div>
   );

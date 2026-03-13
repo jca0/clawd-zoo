@@ -1,5 +1,5 @@
 import { promises as fs } from 'fs';
-import type { ParsedMessage } from '@/lib/types';
+import type { ParsedMessage, SessionStats } from '@/lib/types';
 
 function summarizeToolInput(toolName: string, input: any): string {
   if (!input) return '';
@@ -78,4 +78,65 @@ export async function parseConversation(filePath: string): Promise<ParsedMessage
   }
 
   return messages;
+}
+
+export async function parseStats(filePath: string, startedAt: number): Promise<SessionStats> {
+  const raw = await fs.readFile(filePath, 'utf-8');
+  const lines = raw.split('\n').filter((l) => l.trim());
+
+  let model: string | null = null;
+  let totalInputTokens = 0;
+  let totalOutputTokens = 0;
+  let totalCacheReadTokens = 0;
+  let totalCacheWriteTokens = 0;
+  let userMessages = 0;
+  let assistantTurns = 0;
+  let toolUses = 0;
+  const toolBreakdown: Record<string, number> = {};
+
+  for (const line of lines) {
+    let entry: any;
+    try { entry = JSON.parse(line); } catch { continue; }
+
+    if (entry.type === 'user' && !entry.isMeta) {
+      userMessages++;
+    }
+
+    if (entry.type === 'assistant') {
+      assistantTurns++;
+      if (!model && entry.message?.model) {
+        model = entry.message.model;
+      }
+      const usage = entry.message?.usage;
+      if (usage) {
+        totalInputTokens += usage.input_tokens ?? 0;
+        totalOutputTokens += usage.output_tokens ?? 0;
+        totalCacheReadTokens += usage.cache_read_input_tokens ?? 0;
+        totalCacheWriteTokens += usage.cache_creation_input_tokens ?? 0;
+      }
+      const content = entry.message?.content;
+      if (Array.isArray(content)) {
+        for (const block of content) {
+          if (block.type === 'tool_use') {
+            toolUses++;
+            const name = block.name ?? 'unknown';
+            toolBreakdown[name] = (toolBreakdown[name] ?? 0) + 1;
+          }
+        }
+      }
+    }
+  }
+
+  return {
+    duration: Date.now() - startedAt,
+    model,
+    totalInputTokens,
+    totalOutputTokens,
+    totalCacheReadTokens,
+    totalCacheWriteTokens,
+    userMessages,
+    assistantTurns,
+    toolUses,
+    toolBreakdown,
+  };
 }
