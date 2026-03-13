@@ -28,9 +28,9 @@ export default function ThoughtBubble({ session, onToggleExpand }: ThoughtBubble
         style={{
           imageRendering: 'pixelated',
           background: '#FFFBE6',
-          border: '3px solid #2A2A2A',
+          border: '2px solid #2A2A2A',
           borderRadius: '2px',
-          boxShadow: '3px 3px 0 #2A2A2A',
+          boxShadow: '2px 2px 0 #2A2A2A',
         }}
       >
         <p
