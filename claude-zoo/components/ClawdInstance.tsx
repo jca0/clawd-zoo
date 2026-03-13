@@ -149,12 +149,12 @@ export default function ClawdInstance({ session, position, onDrag, name, onRenam
           />
         )}
         <img
-          src={blinking ? '/clawd_blink.svg' : '/clawd.svg'}
+          src={isActive ? '/clawd_xd.svg' : blinking ? '/clawd_blink.svg' : '/clawd.svg'}
           alt="Clawd"
           width={80}
           height={80}
           style={{ imageRendering: 'pixelated' }}
-          className="cursor-grab active:cursor-grabbing"
+          className={`cursor-grab active:cursor-grabbing${isActive ? ' animate-clawd-shake' : ''}`}
           onMouseDown={handleMouseDown}
           draggable={false}
         />
