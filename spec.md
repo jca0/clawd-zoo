@@ -78,25 +78,21 @@ For `tool_use` messages, `input` is serialized: for `Bash` tools show the `comma
 
 ### Dashboard UI (`app/page.tsx` + `components/`)
 
-- Dark theme by default (this is a dev tool).
+- White background, single-page layout.
 - Polls `GET /api/sessions` every 3 seconds.
-- Displays a grid/list of session cards.
-- Each card shows:
-  - Truncated session ID (first 8 chars).
-  - Project path (`cwd`), shortened to the last 2 path segments (e.g., `code/my-app`).
-  - Status indicator: green dot for active, gray for done.
-  - Last tool used (if any) — e.g., "Bash", "Edit".
-  - Time since last activity (relative, e.g., "2s ago").
-  - "Show Progress" button.
-- Clicking "Show Progress" fetches `GET /api/session/:id/conversation` and expands an inline conversation view below the card.
-- Conversation view renders:
-  - User messages: displayed as-is.
-  - Assistant text: displayed as-is.
-  - Thinking blocks: collapsed by default, expandable. Visually distinct (muted/italic).
-  - Tool use blocks: show tool name and summarized input. Visually distinct (monospace, bordered).
-  - Tool result blocks: collapsed by default, expandable. Show truncated output preview.
-- Clicking "Show Progress" again (or a "Hide" button) collapses the conversation view.
-- Clicking "Show Progress" while already expanded re-fetches the conversation (refresh).
+- Each active Claude Code instance is represented by a small Claude logo (the claude.ai favicon/logomark).
+- **Active state**: The Claude logo has an animated thought bubble floating above it showing the latest assistant message or thinking summary. The thought bubble updates as new activity comes in.
+  - The thought bubble shows a brief preview of the most recent assistant text, tool use, or thinking block.
+  - A "Show More" button in the thought bubble expands to show the full chat history inline below the logo.
+  - The expanded view renders:
+    - User messages: displayed as-is.
+    - Assistant text: displayed as-is.
+    - Thinking blocks: collapsed by default, expandable. Visually distinct (muted/italic).
+    - Tool use blocks: show tool name and summarized input. Visually distinct (monospace, bordered).
+    - Tool result blocks: collapsed by default, expandable. Show truncated output preview.
+  - Clicking "Show More" again collapses back to just the thought bubble.
+- **Idle/done state**: The Claude logo sits still with no thought bubble and no animation.
+- Below each logo, show the project path (`cwd`) shortened to the last 2 path segments (e.g., `code/my-app`).
 - If there are no sessions, show an empty state message explaining that sessions will appear when Claude Code instances start.
 
 ### JSONL Path Resolution
