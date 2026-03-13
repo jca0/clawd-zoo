@@ -97,7 +97,7 @@ export default function ClawdInstance({ session, position, onDrag, name, onRenam
 
   return (
     <div
-      style={{ position: 'absolute', left: `${position.x}%`, top: `${position.y}%` }}
+      style={{ position: 'absolute', left: `${position.x}%`, top: `${position.y}%`, zIndex: (showStats || expanded) ? 10 : 1 }}
       className="flex flex-col items-center relative"
     >
       <div className="relative flex flex-col items-center">
@@ -160,7 +160,7 @@ export default function ClawdInstance({ session, position, onDrag, name, onRenam
           {name || shortenPath(session.cwd)}
         </span>
       )}
-      {showStats && stats && !expanded && (
+      {showStats && stats && (
         <StatsPopup stats={stats} side="right" />
       )}
       {expanded && conversation && (

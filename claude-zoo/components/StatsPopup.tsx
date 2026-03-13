@@ -68,16 +68,21 @@ export default function StatsPopup({ stats, side }: StatsPopupProps) {
       }}
     >
       <div className="flex justify-between">
-        <span style={labelStyle}>duration</span>
-        <span style={valueStyle}>{formatDuration(stats.duration)}</span>
-      </div>
-      <div className="flex justify-between">
         <span style={labelStyle}>model</span>
         <span style={valueStyle}>{stats.model?.replace('claude-', '') ?? '?'}</span>
       </div>
       <div className="flex justify-between">
         <span style={labelStyle}>est. cost</span>
         <span style={valueStyle}>{estimateCost(stats)}</span>
+      </div>
+      <div style={{ borderTop: '1px solid #B0A890', margin: '4px 0' }} />
+      <div className="flex justify-between">
+        <span style={labelStyle}>messages</span>
+        <span style={valueStyle}>{stats.userMessages}</span>
+      </div>
+      <div className="flex justify-between">
+        <span style={labelStyle}>responses</span>
+        <span style={valueStyle}>{stats.assistantTurns}</span>
       </div>
       <div style={{ borderTop: '1px solid #B0A890', margin: '4px 0' }} />
       <div className="flex justify-between">
@@ -96,30 +101,6 @@ export default function StatsPopup({ stats, side }: StatsPopupProps) {
         <span style={labelStyle}>cache write</span>
         <span style={valueStyle}>{formatTokens(stats.totalCacheWriteTokens)}</span>
       </div>
-      <div style={{ borderTop: '1px solid #B0A890', margin: '4px 0' }} />
-      <div className="flex justify-between">
-        <span style={labelStyle}>messages</span>
-        <span style={valueStyle}>{stats.userMessages}</span>
-      </div>
-      <div className="flex justify-between">
-        <span style={labelStyle}>responses</span>
-        <span style={valueStyle}>{stats.assistantTurns}</span>
-      </div>
-      <div className="flex justify-between">
-        <span style={labelStyle}>tool uses</span>
-        <span style={valueStyle}>{stats.toolUses}</span>
-      </div>
-      {topTools.length > 0 && (
-        <>
-          <div style={{ borderTop: '1px solid #B0A890', margin: '4px 0' }} />
-          {topTools.map(([name, count]) => (
-            <div key={name} className="flex justify-between">
-              <span style={labelStyle}>{name}</span>
-              <span style={valueStyle}>{count}</span>
-            </div>
-          ))}
-        </>
-      )}
     </div>
   );
 }

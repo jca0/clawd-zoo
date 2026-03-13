@@ -6,6 +6,7 @@ import ClawdInstance from '@/components/ClawdInstance';
 
 const STORAGE_KEY = 'claude-zoo-positions';
 const NAMES_KEY = 'claude-zoo-names';
+const HIDDEN_KEY = 'claude-zoo-hidden';
 
 function loadPositions(): Record<string, { x: number; y: number }> {
   try {
@@ -41,10 +42,31 @@ function saveNames(names: Record<string, string>) {
   }
 }
 
+function formatDate(ts: number): string {
+  const d = new Date(ts);
+  const mon = d.toLocaleString('en', { month: 'short' });
+  const day = d.getDate();
+  const h = d.getHours().toString().padStart(2, '0');
+  const m = d.getMinutes().toString().padStart(2, '0');
+  return `${mon} ${day} ${h}:${m}`;
+}
+
+function shortenPath(cwd: string): string {
+  const segments = cwd.split('/').filter(Boolean);
+  return segments.slice(-2).join('/');
+}
+
 export default function Dashboard() {
   const [sessions, setSessions] = useState<Session[]>([]);
   const [positions, setPositions] = useState<Record<string, { x: number; y: number }>>(() => loadPositions());
   const [names, setNames] = useState<Record<string, string>>(() => loadNames());
+  const [hidden, setHidden] = useState<Set<string>>(() => {
+    try {
+      const stored = localStorage.getItem(HIDDEN_KEY);
+      return stored ? new Set(JSON.parse(stored)) : new Set();
+    } catch { return new Set(); }
+  });
+  const [menuOpen, setMenuOpen] = useState(false);
 
   useEffect(() => {
     let cancelled = false;
@@ -104,19 +126,125 @@ export default function Dashboard() {
     });
   }, []);
 
+  const handleHide = useCallback((sessionId: string) => {
+    setHidden((prev) => {
+      const next = new Set(prev);
+      next.add(sessionId);
+      try { localStorage.setItem(HIDDEN_KEY, JSON.stringify([...next])); } catch {}
+      return next;
+    });
+  }, []);
+
+  const handleUnhide = useCallback((sessionId: string) => {
+    setHidden((prev) => {
+      const next = new Set(prev);
+      next.delete(sessionId);
+      try { localStorage.setItem(HIDDEN_KEY, JSON.stringify([...next])); } catch {}
+      return next;
+    });
+  }, []);
+
   const FADE_DURATION_MS = 10_000;
   const now = Date.now();
   const visibleSessions = sessions
-    .filter((s) => s.status !== 'done' || (s.endedAt && now - s.endedAt < FADE_DURATION_MS));
+    .filter((s) => s.status !== 'done' || (s.endedAt && now - s.endedAt < FADE_DURATION_MS))
+    .filter((s) => !hidden.has(s.id));
+
+  const [selectedSession, setSelectedSession] = useState<string | null>(null);
+
+  const menu = (
+    <div className="absolute top-3 left-3" style={{ zIndex: 50 }}>
+      <button
+        className="cursor-pointer flex flex-col gap-[3px] items-center justify-center"
+        style={{
+          width: 28,
+          height: 28,
+          background: '#FFFBE6',
+          border: '2px solid #2A2A2A',
+          borderRadius: '2px',
+          boxShadow: '2px 2px 0 #2A2A2A',
+          imageRendering: 'pixelated',
+        }}
+        onClick={() => { setMenuOpen((p) => !p); setSelectedSession(null); }}
+      >
+        <div style={{ width: 14, height: 2, background: '#2A2A2A' }} />
+        <div style={{ width: 14, height: 2, background: '#2A2A2A' }} />
+        <div style={{ width: 14, height: 2, background: '#2A2A2A' }} />
+      </button>
+      {menuOpen && (
+        <div
+          className="mt-1 overflow-auto outline-none"
+          tabIndex={0}
+          onKeyDown={(e) => {
+            if (e.key === 'Delete' || e.key === 'Backspace') {
+              if (selectedSession) {
+                if (hidden.has(selectedSession)) {
+                  handleUnhide(selectedSession);
+                } else {
+                  handleHide(selectedSession);
+                }
+                setSelectedSession(null);
+              }
+            }
+          }}
+          ref={(el) => { if (el) el.focus(); }}
+          style={{
+            fontFamily: 'monospace',
+            fontSize: 10,
+            color: '#2A2A2A',
+            background: '#FFFBE6',
+            border: '2px solid #2A2A2A',
+            borderRadius: '2px',
+            boxShadow: '2px 2px 0 #2A2A2A',
+            padding: 4,
+            maxHeight: 400,
+            minWidth: 200,
+            imageRendering: 'pixelated',
+          }}
+        >
+          {sessions.map((s) => {
+            const isHidden = hidden.has(s.id);
+            const isSelected = selectedSession === s.id;
+            return (
+              <div
+                key={s.id}
+                className="flex items-center justify-between gap-2 px-1 py-1 cursor-pointer"
+                style={{
+                  background: isSelected ? '#2A2A2A' : 'transparent',
+                  color: isSelected ? '#FFFBE6' : '#2A2A2A',
+                  opacity: isHidden ? 0.4 : 1,
+                }}
+                onClick={() => setSelectedSession(isSelected ? null : s.id)}
+              >
+                <div className="truncate">
+                  <span className="font-bold">{names[s.id] || shortenPath(s.cwd)}</span>
+                  <span className="ml-1" style={{ color: isSelected ? '#B0A890' : '#7A7060' }}>{formatDate(s.startedAt)}</span>
+                </div>
+                <span style={{ color: isSelected ? '#B0A890' : '#7A7060', flexShrink: 0 }}>{s.status}</span>
+              </div>
+            );
+          })}
+          {sessions.length > 0 && (
+            <div className="mt-1 px-1" style={{ color: '#7A7060', fontSize: 9 }}>
+              select + delete to hide/show
+            </div>
+          )}
+        </div>
+      )}
+    </div>
+  );
 
   if (visibleSessions.length === 0) {
     return (
-      <div className="min-h-screen relative" style={{ backgroundImage: 'url(/grass.svg)', backgroundRepeat: 'repeat', backgroundSize: '128px 128px' }} />
+      <div className="min-h-screen relative" style={{ backgroundImage: 'url(/grass.svg)', backgroundRepeat: 'repeat', backgroundSize: '128px 128px' }}>
+        {menu}
+      </div>
     );
   }
 
   return (
     <div className="relative min-h-screen overflow-auto" style={{ backgroundImage: 'url(/grass.svg)', backgroundRepeat: 'repeat', backgroundSize: '128px 128px' }}>
+      {menu}
       {visibleSessions.map((session) => (
         <ClawdInstance
           key={session.id}
