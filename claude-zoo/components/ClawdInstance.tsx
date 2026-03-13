@@ -84,14 +84,13 @@ export default function ClawdInstance({ session, position, onDrag, name, onRenam
   return (
     <div
       style={{ position: 'absolute', left: `${position.x}%`, top: `${position.y}%` }}
-      className="flex flex-col items-center"
+      className="flex flex-col items-center relative"
     >
       <div className="relative flex flex-col items-center">
         {isActive && (
           <ThoughtBubble
             session={session}
             onToggleExpand={handleToggleExpand}
-            expanded={expanded}
           />
         )}
         {isIdle && session.lastMessage && (
@@ -101,10 +100,11 @@ export default function ClawdInstance({ session, position, onDrag, name, onRenam
           />
         )}
         <img
-          src="/clawd.svg"
+          src="/clawd.png"
           alt="Clawd"
           width={80}
           height={80}
+          style={{ imageRendering: 'pixelated' }}
           className={isActive ? 'animate-clawd-bounce cursor-grab active:cursor-grabbing' : 'cursor-grab active:cursor-grabbing'}
           onMouseDown={handleMouseDown}
           draggable={false}
@@ -147,7 +147,7 @@ export default function ClawdInstance({ session, position, onDrag, name, onRenam
         </span>
       )}
       {expanded && conversation && (
-        <ConversationView messages={conversation} />
+        <ConversationView messages={conversation} onClose={() => { setExpanded(false); setConversation(null); }} />
       )}
     </div>
   );

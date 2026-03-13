@@ -18,6 +18,10 @@
   50% { transform: translateY(-8px); }
 }
 
+::-webkit-resizer {
+  display: none;
+}
+
 body {
   background: var(--background);
   color: var(--foreground);

@@ -5,10 +5,9 @@ import type { Session } from '@/lib/types';
 interface ThoughtBubbleProps {
   session: Session;
   onToggleExpand: () => void;
-  expanded: boolean;
 }
 
-export default function ThoughtBubble({ session, onToggleExpand, expanded }: ThoughtBubbleProps) {
+export default function ThoughtBubble({ session, onToggleExpand }: ThoughtBubbleProps) {
   let content: string;
   if (session.lastToolInput) {
     content = session.lastToolInput.length > 40
