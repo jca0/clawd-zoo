@@ -5,6 +5,7 @@ import type { SessionStats } from '@/lib/types';
 interface StatsPopupProps {
   stats: SessionStats;
   side: 'left' | 'right';
+  onHide: () => void;
 }
 
 function formatDuration(ms: number): string {
@@ -46,7 +47,7 @@ function estimateCost(stats: SessionStats): string {
 const labelStyle = { color: '#7A7060' };
 const valueStyle = { color: '#2A2A2A', fontWeight: 'bold' as const };
 
-export default function StatsPopup({ stats, side }: StatsPopupProps) {
+export default function StatsPopup({ stats, side, onHide }: StatsPopupProps) {
   const topTools = Object.entries(stats.toolBreakdown)
     .sort((a, b) => b[1] - a[1])
     .slice(0, 5);
@@ -100,6 +101,22 @@ export default function StatsPopup({ stats, side }: StatsPopupProps) {
       <div className="flex justify-between">
         <span style={labelStyle}>cache write</span>
         <span style={valueStyle}>{formatTokens(stats.totalCacheWriteTokens)}</span>
+      </div>
+      <div style={{ borderTop: '1px solid #B0A890', margin: '4px 0' }} />
+      <div className="flex justify-center">
+        <button
+          className="cursor-pointer"
+          style={{ background: 'none', border: 'none', padding: 2, lineHeight: 1 }}
+          onClick={onHide}
+          title="Remove from view"
+        >
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none" style={{ display: 'block' }}>
+            <path d="M5 1h4v1H5V1z" fill="#C44" />
+            <path d="M2 3h10v1H2V3z" fill="#C44" />
+            <path d="M3 4h1v8h6V4h1v9H3V4z" fill="#C44" />
+            <path d="M5 5h1v6H5V5zM8 5h1v6H8V5z" fill="#C44" />
+          </svg>
+        </button>
       </div>
     </div>
   );

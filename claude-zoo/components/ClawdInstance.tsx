@@ -13,6 +13,7 @@ interface ClawdInstanceProps {
   onDrag: (sessionId: string, x: number, y: number) => void;
   name: string | null;
   onRename: (sessionId: string, name: string) => void;
+  onHide: (sessionId: string) => void;
 }
 
 function shortenPath(cwd: string): string {
@@ -20,7 +21,7 @@ function shortenPath(cwd: string): string {
   return segments.slice(-2).join('/');
 }
 
-export default function ClawdInstance({ session, position, onDrag, name, onRename }: ClawdInstanceProps) {
+export default function ClawdInstance({ session, position, onDrag, name, onRename, onHide }: ClawdInstanceProps) {
   const [expanded, setExpanded] = useState(false);
   const [conversation, setConversation] = useState<ParsedMessage[] | null>(null);
   const [showStats, setShowStats] = useState(false);
@@ -161,7 +162,7 @@ export default function ClawdInstance({ session, position, onDrag, name, onRenam
         </span>
       )}
       {showStats && stats && (
-        <StatsPopup stats={stats} side="right" />
+        <StatsPopup stats={stats} side="right" onHide={() => onHide(session.id)} />
       )}
       {expanded && conversation && (
         <ConversationView messages={conversation} />

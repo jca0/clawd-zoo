@@ -2,6 +2,7 @@
 
 import { useState, useRef, useCallback } from 'react';
 import type { Session } from '@/lib/types';
+import { renderInline } from '@/lib/renderMarkdown';
 
 interface ThoughtBubbleProps {
   session: Session;
@@ -72,7 +73,7 @@ export default function ThoughtBubble({ session, onToggleExpand }: ThoughtBubble
             wordBreak: 'break-word',
           }}
         >
-          {content}
+          {renderInline(content)}
         </p>
         <div className="absolute top-0 left-0 w-[10px] h-[10px] cursor-nwse-resize" onMouseDown={startResize('top-left')} />
         <div className="absolute top-0 right-0 w-[10px] h-[10px] cursor-nesw-resize" onMouseDown={startResize('top-right')} />

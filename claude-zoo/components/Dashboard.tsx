@@ -150,8 +150,6 @@ export default function Dashboard() {
     .filter((s) => s.status !== 'done' || (s.endedAt && now - s.endedAt < FADE_DURATION_MS))
     .filter((s) => !hidden.has(s.id));
 
-  const [selectedSession, setSelectedSession] = useState<string | null>(null);
-
   const menu = (
     <div className="absolute top-3 left-3" style={{ zIndex: 50 }}>
       <button
@@ -165,7 +163,7 @@ export default function Dashboard() {
           boxShadow: '2px 2px 0 #2A2A2A',
           imageRendering: 'pixelated',
         }}
-        onClick={() => { setMenuOpen((p) => !p); setSelectedSession(null); }}
+        onClick={() => setMenuOpen((p) => !p)}
       >
         <div style={{ width: 14, height: 2, background: '#2A2A2A' }} />
         <div style={{ width: 14, height: 2, background: '#2A2A2A' }} />
@@ -173,21 +171,7 @@ export default function Dashboard() {
       </button>
       {menuOpen && (
         <div
-          className="mt-1 overflow-auto outline-none"
-          tabIndex={0}
-          onKeyDown={(e) => {
-            if (e.key === 'Delete' || e.key === 'Backspace') {
-              if (selectedSession) {
-                if (hidden.has(selectedSession)) {
-                  handleUnhide(selectedSession);
-                } else {
-                  handleHide(selectedSession);
-                }
-                setSelectedSession(null);
-              }
-            }
-          }}
-          ref={(el) => { if (el) el.focus(); }}
+          className="mt-1 overflow-auto"
           style={{
             fontFamily: 'monospace',
             fontSize: 10,
@@ -204,31 +188,21 @@ export default function Dashboard() {
         >
           {sessions.map((s) => {
             const isHidden = hidden.has(s.id);
-            const isSelected = selectedSession === s.id;
             return (
               <div
                 key={s.id}
-                className="flex items-center justify-between gap-2 px-1 py-1 cursor-pointer"
-                style={{
-                  background: isSelected ? '#2A2A2A' : 'transparent',
-                  color: isSelected ? '#FFFBE6' : '#2A2A2A',
-                  opacity: isHidden ? 0.4 : 1,
-                }}
-                onClick={() => setSelectedSession(isSelected ? null : s.id)}
+                className="flex items-center justify-between gap-2 px-1 py-1 cursor-pointer hover:bg-black/5"
+                style={{ opacity: isHidden ? 0.4 : 1 }}
+                onClick={() => isHidden ? handleUnhide(s.id) : undefined}
               >
                 <div className="truncate">
                   <span className="font-bold">{names[s.id] || shortenPath(s.cwd)}</span>
-                  <span className="ml-1" style={{ color: isSelected ? '#B0A890' : '#7A7060' }}>{formatDate(s.startedAt)}</span>
+                  <span className="ml-1" style={{ color: '#7A7060' }}>{formatDate(s.startedAt)}</span>
                 </div>
-                <span style={{ color: isSelected ? '#B0A890' : '#7A7060', flexShrink: 0 }}>{s.status}</span>
+                <span style={{ color: '#7A7060', flexShrink: 0 }}>{s.status}</span>
               </div>
             );
           })}
-          {sessions.length > 0 && (
-            <div className="mt-1 px-1" style={{ color: '#7A7060', fontSize: 9 }}>
-              select + delete to hide/show
-            </div>
-          )}
         </div>
       )}
     </div>
@@ -253,6 +227,7 @@ export default function Dashboard() {
           onDrag={handleDrag}
           name={names[session.id] ?? null}
           onRename={handleRename}
+          onHide={handleHide}
         />
       ))}
     </div>
