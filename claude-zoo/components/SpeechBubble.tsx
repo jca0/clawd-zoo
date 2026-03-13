@@ -44,7 +44,7 @@ export default function SpeechBubble({ session, onToggleExpand }: SpeechBubblePr
   }, []);
 
   return (
-    <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-3">
+    <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-1">
       <div
         className="relative flex items-center cursor-pointer overflow-hidden"
         onClick={onToggleExpand}

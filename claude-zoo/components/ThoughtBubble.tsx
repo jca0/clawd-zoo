@@ -44,7 +44,7 @@ export default function ThoughtBubble({ session, onToggleExpand }: ThoughtBubble
   }, []);
 
   return (
-    <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-3">
+    <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-1">
       {/* Pixel-art thought bubble */}
       <div
         className="relative flex items-center cursor-pointer overflow-hidden animate-thought-float"
