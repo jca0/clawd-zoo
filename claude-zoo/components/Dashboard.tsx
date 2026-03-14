@@ -152,6 +152,31 @@ export default function Dashboard() {
 
   const menu = (
     <div className="absolute top-3 left-3" style={{ zIndex: 50 }}>
+      <span style={{
+        position: 'absolute',
+        left: '100%',
+        top: '50%',
+        transform: 'translateY(-50%)',
+        marginLeft: 10,
+        fontFamily: 'monospace',
+        fontSize: 26,
+        fontWeight: 'bold',
+        color: '#FFFBE6',
+        letterSpacing: '2px',
+        textTransform: 'uppercase' as const,
+        whiteSpace: 'nowrap',
+        imageRendering: 'pixelated',
+        textShadow: [
+          '-3px -3px 0 #2A2A2A', '-2px -3px 0 #2A2A2A', '-1px -3px 0 #2A2A2A', '0 -3px 0 #2A2A2A', '1px -3px 0 #2A2A2A', '2px -3px 0 #2A2A2A', '3px -3px 0 #2A2A2A',
+          '-3px -2px 0 #2A2A2A', '3px -2px 0 #2A2A2A',
+          '-3px -1px 0 #2A2A2A', '3px -1px 0 #2A2A2A',
+          '-3px 0 0 #2A2A2A', '3px 0 0 #2A2A2A',
+          '-3px 1px 0 #2A2A2A', '3px 1px 0 #2A2A2A',
+          '-3px 2px 0 #2A2A2A', '3px 2px 0 #2A2A2A',
+          '-3px 3px 0 #2A2A2A', '-2px 3px 0 #2A2A2A', '-1px 3px 0 #2A2A2A', '0 3px 0 #2A2A2A', '1px 3px 0 #2A2A2A', '2px 3px 0 #2A2A2A', '3px 3px 0 #2A2A2A',
+          '4px 4px 0 #2A2A2A',
+        ].join(', '),
+      }}>clawd zoo</span>
       <button
         className="cursor-pointer"
         style={{
