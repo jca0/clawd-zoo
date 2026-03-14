@@ -15,13 +15,13 @@ export async function POST(request: Request) {
   try {
     const body = await request.json();
     const { session_id, cwd, tool_name, tool_input } = body;
-    console.log('[claude-zoo] post-tool-use:', { session_id, cwd, tool_name });
+    console.log('[clawd-zoo] post-tool-use:', { session_id, cwd, tool_name });
     if (typeof session_id === 'string' && session_id) {
       const summary = summarizeInput(tool_name ?? '', tool_input);
       updateToolUse(session_id, cwd ?? '', tool_name ?? '', summary);
     }
   } catch (e) {
-    console.error('[claude-zoo] post-tool-use error:', e);
+    console.error('[clawd-zoo] post-tool-use error:', e);
   }
   return Response.json({ ok: true });
 }

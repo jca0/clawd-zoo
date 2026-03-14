@@ -4,7 +4,7 @@ import net from 'node:net';
 import os from 'node:os';
 
 const projectRoot = path.resolve(import.meta.dir, '..');
-const nextAppDir = path.resolve(projectRoot, 'claude-zoo');
+const nextAppDir = path.resolve(projectRoot, 'clawd-zoo');
 const settingsPath = path.join(os.homedir(), '.claude', 'settings.json');
 const settingsTmpPath = settingsPath + '.tmp';
 
@@ -115,7 +115,7 @@ async function waitForServer(maxMs = 30000): Promise<void> {
 async function main() {
   // Check port availability
   if (await checkPort(3000)) {
-    console.error('Port 3000 already in use. Is claude-zoo already running?');
+    console.error('Port 3000 already in use. Is clawd-zoo already running?');
     process.exit(1);
   }
 

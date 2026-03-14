@@ -6,19 +6,21 @@ import os from 'node:os';
 const DONE_TTL = 30 * 60_000; // 30 minutes
 const CLEANUP_INTERVAL = 5 * 60_000; // 5 minutes
 
-const registry = ((globalThis as any).__claudeZooRegistry ??= new Map<string, Session>());
+const registry = ((globalThis as any).__clawdZooRegistry ??= new Map<string, Session>());
 
 function cleanup() {
   const now = Date.now();
   for (const [id, session] of registry) {
     if (session.status === 'done' && session.endedAt && now - session.endedAt > DONE_TTL) {
       registry.delete(id);
+    } else if (session.status === 'idle' && now - session.lastActivity > DONE_TTL) {
+      registry.delete(id);
     }
   }
 }
 
-if (!(globalThis as any).__claudeZooCleanupInterval) {
-  (globalThis as any).__claudeZooCleanupInterval = setInterval(cleanup, CLEANUP_INTERVAL);
+if (!(globalThis as any).__clawdZooCleanupInterval) {
+  (globalThis as any).__clawdZooCleanupInterval = setInterval(cleanup, CLEANUP_INTERVAL);
 }
 
 export function addSession(id: string, cwd: string): void {
@@ -72,11 +74,12 @@ export function endSession(id: string): void {
   }
 }
 
-// Scan ~/.claude/projects/ for recently modified JSONL files and register them
 function scanExistingSessions() {
   try {
     const projectsDir = path.join(os.homedir(), '.claude', 'projects');
     if (!fs.existsSync(projectsDir)) return;
+    const now = Date.now();
+    const MAX_AGE_MS = 30 * 60_000;
 
     for (const dir of fs.readdirSync(projectsDir)) {
       const dirPath = path.join(projectsDir, dir);
@@ -88,17 +91,14 @@ function scanExistingSessions() {
         const sessionId = file.replace('.jsonl', '');
         if (registry.has(sessionId)) continue;
 
-        // Only register if session directory exists (indicates active session)
         const sessionDir = path.join(dirPath, sessionId);
         if (!fs.existsSync(sessionDir) || !fs.statSync(sessionDir).isDirectory()) continue;
 
         const filePath = path.join(dirPath, file);
         const stat = fs.statSync(filePath);
+        if (now - stat.mtimeMs > MAX_AGE_MS) continue;
 
-        // Reconstruct cwd from mangled dir name: -Users-foo-bar → /Users/foo/bar
         const cwd = dir.replace(/^-/, '/').replaceAll('-', '/');
-
-        // Read first user line to get actual cwd if available
         let realCwd = cwd;
         try {
           const head = fs.readFileSync(filePath, 'utf-8').split('\n').slice(0, 10);
@@ -124,12 +124,12 @@ function scanExistingSessions() {
       }
     }
   } catch (e) {
-    console.error('[claude-zoo] scan error:', e);
+    console.error('[clawd-zoo] scan error:', e);
   }
 }
 
-if (!(globalThis as any).__claudeZooScanned) {
-  (globalThis as any).__claudeZooScanned = true;
+if (!(globalThis as any).__clawdZooScanned) {
+  (globalThis as any).__clawdZooScanned = true;
   scanExistingSessions();
 }
 

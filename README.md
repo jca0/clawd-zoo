@@ -2,13 +2,15 @@
 
 A localhost dashboard that monitors active Claude Code sessions in real time. Each session is represented by a pixel-art clawd bot that bounces, shakes, and blinks as Claude works.
 
+![clawd zoo demo](clawd-zoo-demo.gif)
+
 ## Install
 
 Requires [Bun](https://bun.sh) and Node.js.
 
 ```bash
-git clone https://github.com/jca0/claude-zoo.git
-cd claude-zoo/claude-zoo
+git clone https://github.com/jca0/clawd-zoo.git
+cd clawd-zoo/clawd-zoo
 npm install
 cd ..
 ```

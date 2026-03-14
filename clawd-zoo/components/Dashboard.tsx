@@ -4,9 +4,9 @@ import { useEffect, useState, useCallback } from 'react';
 import type { Session } from '@/lib/types';
 import ClawdInstance from '@/components/ClawdInstance';
 
-const STORAGE_KEY = 'claude-zoo-positions';
-const NAMES_KEY = 'claude-zoo-names';
-const HIDDEN_KEY = 'claude-zoo-hidden';
+const STORAGE_KEY = 'clawd-zoo-positions';
+const NAMES_KEY = 'clawd-zoo-names';
+const HIDDEN_KEY = 'clawd-zoo-hidden';
 
 function loadPositions(): Record<string, { x: number; y: number }> {
   try {
